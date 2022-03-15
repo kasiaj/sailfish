@@ -430,7 +430,7 @@ class Subdomain(object):
         including ghost nodes. Nodes marked True indicate active nodes
         participating in the simulation."""
         # By default, consider all nodes to be active.
-        self.active_node_mask = np.ones(self.full_lat_shape, dtype=np.bool)
+        self.active_node_mask = np.ones(self.full_lat_shape, dtype=bool)
         self.spec.runner.config.logger.warning(
             'Using indirect addressing with all nodes active. Consider '
             '--node_addressing=direct for better performance.')
@@ -873,12 +873,12 @@ class Subdomain(object):
         #  W V
         # where W is a HBB wall and V is a velocity BC.
         where = (filters.convolve(fluid_map, neighbors, mode='constant', cval=1) == 0)
-        self._type_map_base[where & wet_map_for_unused.astype(np.bool)] = nt._NTUnused.id
+        self._type_map_base[where & wet_map_for_unused.astype(bool)] = nt._NTUnused.id
 
         # Any dry node, not connected to at least one wet node is marked unused.
         # For instance, for HBB walls: .. W W W F -> .. U U W F.
         where = (filters.convolve(wet_map, neighbors, mode='constant', cval=0) == 0)
-        self._type_map_base[where & np.logical_not(wet_map.astype(np.bool))] = nt._NTUnused.id
+        self._type_map_base[where & np.logical_not(wet_map.astype(bool))] = nt._NTUnused.id
 
         # If an unused node touches a wet node, mark it as propagation only.
         # For instance, for HBB walls: .. U U W F -> .. U P W F.

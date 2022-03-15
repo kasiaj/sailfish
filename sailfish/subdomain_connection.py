@@ -373,7 +373,7 @@ def _get_dst_partial_map(dists, grid, src_slice_global, b1, slice_axes,
     last_axis = len(src_coords.shape) - 1
 
     # Selects source nodes that have the full set of distributions (`dists`).
-    full_map = np.ones(src_coords.shape[:-1], dtype=np.bool)
+    full_map = np.ones(src_coords.shape[:-1], dtype=bool)
 
     # Maps distribution index to a boolean array selecting (in src_coords)
     # nodes for which the distribution identified by the key is defined.

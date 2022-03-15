@@ -139,7 +139,7 @@ def in_anyd_fast(arr1, values):
     :param values: an iterable of values to look for in arr1
     """
     if len(values) == 0:
-        return np.zeros(arr1.shape, dtype=np.bool)
+        return np.zeros(arr1.shape, dtype=bool)
 
     ret = arr1 == values[0]
     for v in values[1:]:

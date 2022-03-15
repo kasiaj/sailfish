@@ -191,22 +191,52 @@ ${device_func} inline void extended_node_param_get_vector(const int idx, int *ou
 ${device_func} inline float node_param_get_scalar(const int idx ${dynamic_val_args_decl()}) {
   %if (time_dependence or space_dependence) and symbol_idx_map:
     if (idx >= ${non_symbolic_idxs}) {
-      switch (idx) {
-        %for key, val in symbol_idx_map.items():
-          %if len(val) == 1:
-            case ${key}: {
-              float out;
-              time_dep_param_${key}(&out ${dynamic_val_args()});
-              return out;
-            }
-          %endif
-        %endfor
-        default:
-          %if gpu_check_invalid_values:
-            printf("Invalid scalar value (idx=%d\n", idx);
-          %endif
-          die();
-      }
+      ## if both spatial array and sympy expression:
+      %if  symbol_to_geo_map: 
+          switch (idx) {
+            %for key, val in symbol_idx_map.items():
+              %if len(val) == 1:
+                case ${key}: {
+                  float out;
+                  float spatial_array_x = node_params[idx];
+                  float spatial_array_y = node_params[idx + 1];
+                  %if dim == 3:
+                      float spatial_array_z = node_params[idx + 2];  
+                      time_dep_param_${key}(&out, spatial_array_x,spatial_array_y, spatial_array_z ${dynamic_val_args()});
+                      return out;
+                  %else:
+                      time_dep_param_${key}(&out,spatial_array_x,spatial_array_y ${dynamic_val_args()});
+                      return out;
+                %endif  
+                }
+              %endif
+            %endfor
+            default:
+              %if gpu_check_invalid_values:
+                printf("Invalid scalar value (idx=%d\n", idx);
+              %endif
+              die();
+          }
+      %else:
+          switch (idx) {
+            %for key, val in symbol_idx_map.items():
+              %if len(val) == 1:
+                case ${key}: {
+                  float out;
+                  
+                  time_dep_param_${key}(&out ${dynamic_val_args()});
+                  return out;
+ 
+                }
+              %endif
+            %endfor
+            default:
+              %if gpu_check_invalid_values:
+                printf("Invalid scalar value (idx=%d\n", idx);
+              %endif
+              die();
+          }
+      %endif
     }
   %endif
   return node_params[idx];
